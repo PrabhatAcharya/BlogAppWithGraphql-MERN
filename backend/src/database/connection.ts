@@ -7,6 +7,6 @@ export const Connection=async()=>{
         await mongoose.connect(URL)
     } catch (error) {
         console.log(error);
-        return error.message;
+        throw new Error(error);
     }
 }
