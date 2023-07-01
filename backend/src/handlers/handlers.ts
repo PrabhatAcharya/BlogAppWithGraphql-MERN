@@ -127,7 +127,25 @@ const mutations=new GraphQLObjectType({
                 return new Error(error.message);
             }
             }
+        },
+        //delete Blog
+        deleteBlog:{
+            type:BlogType,
+            args:{
+                id:{type:new GraphQLNonNull(GraphQLID)},
+            },
+            async resolve(parent,{id}){
+                let existingBlog:Document<any,any,any>
+                try {
+                    existingBlog=await Blog.findById(id);
+                    if(!existingBlog) return new Error("No Blog found");
+                    return await Blog.findByIdAndRemove(id);
+                } catch (error) {
+                    return new Error(error.message);
+                }
+            }
         }
+
     }
 })
 //now we have to make queries inside the graphqlschema 

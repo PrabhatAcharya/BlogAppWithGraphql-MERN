@@ -132,6 +132,25 @@ const mutations = new graphql_1.GraphQLObjectType({
                     return new Error(error.message);
                 }
             }
+        },
+        //delete Blog
+        deleteBlog: {
+            type: schema_1.BlogType,
+            args: {
+                id: { type: new graphql_1.GraphQLNonNull(graphql_1.GraphQLID) },
+            },
+            async resolve(parent, { id }) {
+                let existingBlog;
+                try {
+                    existingBlog = await Blog_1.default.findById(id);
+                    if (!existingBlog)
+                        return new Error("No Blog found");
+                    return await Blog_1.default.findByIdAndRemove(id);
+                }
+                catch (error) {
+                    return new Error(error.message);
+                }
+            }
         }
     }
 });
