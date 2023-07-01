@@ -12,8 +12,12 @@ content:{
 date:{
     type:Date,
     required: true,
-
-}
+},
+user:{
+    type:Schema.Types.ObjectId,
+    ref:"User"
+},
+comments:[{type:Schema.Types.ObjectId,ref:"Comment"}]  
 })
 const Blog=model("Blog",blogSchema);
 export default Blog;

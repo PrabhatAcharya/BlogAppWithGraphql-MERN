@@ -13,7 +13,12 @@ const blogSchema = new mongoose_1.Schema({
     date: {
         type: Date,
         required: true,
-    }
+    },
+    user: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: "User"
+    },
+    comments: [{ type: mongoose_1.Schema.Types.ObjectId, ref: "Comment" }]
 });
 const Blog = (0, mongoose_1.model)("Blog", blogSchema);
 exports.default = Blog;

@@ -8,6 +8,14 @@ const commentSchema = new Schema({
     date:{
         type:Date,
         required: true
+    },
+    blog:{
+     type:Schema.Types.ObjectId,
+        ref:"Blog"   
+    },
+    user:{
+        type:Schema.Types.ObjectId,
+        ref:"User"
     }
 })
 const Comment = model("Comment", commentSchema);

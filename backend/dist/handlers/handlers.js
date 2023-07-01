@@ -9,6 +9,7 @@ const schema_1 = require("../schema/schema");
 const User_1 = __importDefault(require("../models/User"));
 const Blog_1 = __importDefault(require("../models/Blog"));
 const Comments_1 = __importDefault(require("../models/Comments"));
+const mongoose_1 = require("mongoose");
 const bcryptjs_1 = require("bcryptjs");
 const RootQuery = new graphql_1.GraphQLObjectType({
     name: "RootQuery",
@@ -96,15 +97,31 @@ const mutations = new graphql_1.GraphQLObjectType({
                 title: { type: new graphql_1.GraphQLNonNull(graphql_1.GraphQLString) },
                 content: { type: new graphql_1.GraphQLNonNull(graphql_1.GraphQLString) },
                 date: { type: new graphql_1.GraphQLNonNull(graphql_1.GraphQLString) },
+                user: { type: new graphql_1.GraphQLNonNull(graphql_1.GraphQLID) },
             },
             async resolve(parent, args) {
                 let blog;
+                //to populate the data to refrenced collection we need to create a session
+                const session = await (0, mongoose_1.startSession)();
                 try {
-                    blog = new Blog_1.default({ title: args.title, content: args.content, date: args.date });
-                    return await blog.save();
+                    session.startTransaction({ session });
+                    blog = new Blog_1.default({ title: args.title, content: args.content, date: args.date, user: args.user });
+                    //checking user if we have the user with parent user id(line 97)
+                    const existingUser = await User_1.default.findById(args.user);
+                    if (!existingUser)
+                        return new Error("User Not Found! terminating session");
+                    //after creating instance of blog the we need to start the 
+                    //transaction
+                    //then we need to commit the transaction whic comes under finaly, before commiting we need to save the record in both the user and the blog.
+                    existingUser.blogs.push(blog);
+                    await existingUser.save({ session });
+                    return await blog.save({ session });
                 }
                 catch (error) {
                     return new Error(error.message);
+                }
+                finally {
+                    await session.commitTransaction();
                 }
             }
         },
@@ -141,6 +158,7 @@ const mutations = new graphql_1.GraphQLObjectType({
             },
             async resolve(parent, { id }) {
                 let existingBlog;
+                //in delte we have to delte all the comments of user and the blog of user 
                 try {
                     existingBlog = await Blog_1.default.findById(id);
                     if (!existingBlog)
