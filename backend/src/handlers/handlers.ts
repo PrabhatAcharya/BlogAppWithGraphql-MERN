@@ -6,7 +6,7 @@ import Blog from "../models/Blog"
 
 import Comment from "../models/Comments"
 import {Document} from "mongoose"
-import {hashSync} from "bcryptjs"
+import {compareSync, hashSync} from "bcryptjs"
 
 const RootQuery=new GraphQLObjectType({
   name:"RootQuery",
@@ -61,6 +61,31 @@ const mutations=new GraphQLObjectType({
                 }
             }
 
+        },
+        //user login
+        login:{
+            type:UserType,
+             args:{
+               email:{type:new GraphQLNonNull(GraphQLString)},
+               password:{type:new GraphQLNonNull(GraphQLString)},
+            },
+            async resolve(parent,{email,password}){
+                let existingUser:Document<any,any,any>;
+                try {
+                    existingUser = await User.findOne({email})
+                    if(!existingUser){
+                        return new Error(`Could not find user with this ${email}`);
+                    }
+                    let decryptedPassword = compareSync(password,
+                        //@ts-ignore
+                        existingUser?.password)
+                        if(!decryptedPassword) return new Error(`Could not match details`);
+                        return existingUser
+
+                } catch (error) {
+                    return new Error(error.message);
+                }
+            }
         }
     }
 })

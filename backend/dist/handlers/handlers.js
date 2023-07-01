@@ -62,6 +62,32 @@ const mutations = new graphql_1.GraphQLObjectType({
                     return new Error(`User Signup Failed: ${error.message}`);
                 }
             }
+        },
+        //user login
+        login: {
+            type: schema_1.UserType,
+            args: {
+                email: { type: new graphql_1.GraphQLNonNull(graphql_1.GraphQLString) },
+                password: { type: new graphql_1.GraphQLNonNull(graphql_1.GraphQLString) },
+            },
+            async resolve(parent, { email, password }) {
+                let existingUser;
+                try {
+                    existingUser = await User_1.default.findOne({ email });
+                    if (!existingUser) {
+                        return new Error(`Could not find user with this ${email}`);
+                    }
+                    let decryptedPassword = (0, bcryptjs_1.compareSync)(password, 
+                    //@ts-ignore
+                    existingUser?.password);
+                    if (!decryptedPassword)
+                        return new Error(`Could not match details`);
+                    return existingUser;
+                }
+                catch (error) {
+                    return new Error(error.message);
+                }
+            }
         }
     }
 });
