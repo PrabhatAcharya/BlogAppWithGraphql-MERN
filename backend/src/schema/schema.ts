@@ -15,9 +15,9 @@ export const BlogType=new GraphQLObjectType({
  name:"BlogType",
  fields:()=>({
     id:{type:new GraphQLNonNull(GraphQLID)},
-    title:{type:GraphQLString},
-    content:{type:GraphQLString},
-    date:{type:GraphQLString}
+    title:{type:new GraphQLNonNull(GraphQLString)},
+    content:{type:new GraphQLNonNull(GraphQLString)},
+    date:{type:new GraphQLNonNull(GraphQLString)}
  })
 })
 //comment schema

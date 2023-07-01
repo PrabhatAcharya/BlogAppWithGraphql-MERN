@@ -86,6 +86,47 @@ const mutations=new GraphQLObjectType({
                     return new Error(error.message);
                 }
             }
+        },
+        //create blog
+        addBlog:{
+            type:BlogType,
+            args:{
+                title:{type:new GraphQLNonNull(GraphQLString)},
+                content:{type:new GraphQLNonNull(GraphQLString)},  
+                date:{type:new GraphQLNonNull(GraphQLString)},
+            },
+            async resolve(parent,args){
+                let blog:Document<any,any,any>
+               try {
+                blog=new Blog({title:args.title,content:args.content,date:args.date});
+               return await blog.save();
+               } catch (error) {
+                return new Error(error.message);
+               }
+            }
+        },
+        //update blog
+        updateBlog:{
+            type:BlogType,
+            args:{
+                id:{type:new GraphQLNonNull(GraphQLID)},
+               title:{type:new GraphQLNonNull(GraphQLString)},
+                content:{type:new GraphQLNonNull(GraphQLString)},  
+            },
+            async resolve(parent,{id,title,content}){
+            let existingBlog:Document<any,any,any>
+            try {
+                existingBlog=await Blog.findById(id)
+                if(!existingBlog) return new Error("Blog not found");
+                return await Blog.findByIdAndUpdate(id,{
+                    title,
+                    content
+                },{new:true})
+                //new: true will send the update result to the graphql beacuse updation will take some some time to get updated value will have to do the same
+            } catch (error) {
+                return new Error(error.message);
+            }
+            }
         }
     }
 })

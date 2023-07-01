@@ -16,9 +16,9 @@ exports.BlogType = new graphql_1.GraphQLObjectType({
     name: "BlogType",
     fields: () => ({
         id: { type: new graphql_1.GraphQLNonNull(graphql_1.GraphQLID) },
-        title: { type: graphql_1.GraphQLString },
-        content: { type: graphql_1.GraphQLString },
-        date: { type: graphql_1.GraphQLString }
+        title: { type: new graphql_1.GraphQLNonNull(graphql_1.GraphQLString) },
+        content: { type: new graphql_1.GraphQLNonNull(graphql_1.GraphQLString) },
+        date: { type: new graphql_1.GraphQLNonNull(graphql_1.GraphQLString) }
     })
 });
 //comment schema

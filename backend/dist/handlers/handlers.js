@@ -88,6 +88,50 @@ const mutations = new graphql_1.GraphQLObjectType({
                     return new Error(error.message);
                 }
             }
+        },
+        //create blog
+        addBlog: {
+            type: schema_1.BlogType,
+            args: {
+                title: { type: new graphql_1.GraphQLNonNull(graphql_1.GraphQLString) },
+                content: { type: new graphql_1.GraphQLNonNull(graphql_1.GraphQLString) },
+                date: { type: new graphql_1.GraphQLNonNull(graphql_1.GraphQLString) },
+            },
+            async resolve(parent, args) {
+                let blog;
+                try {
+                    blog = new Blog_1.default({ title: args.title, content: args.content, date: args.date });
+                    return await blog.save();
+                }
+                catch (error) {
+                    return new Error(error.message);
+                }
+            }
+        },
+        //update blog
+        updateBlog: {
+            type: schema_1.BlogType,
+            args: {
+                id: { type: new graphql_1.GraphQLNonNull(graphql_1.GraphQLID) },
+                title: { type: new graphql_1.GraphQLNonNull(graphql_1.GraphQLString) },
+                content: { type: new graphql_1.GraphQLNonNull(graphql_1.GraphQLString) },
+            },
+            async resolve(parent, { id, title, content }) {
+                let existingBlog;
+                try {
+                    existingBlog = await Blog_1.default.findById(id);
+                    if (!existingBlog)
+                        return new Error("Blog not found");
+                    return await Blog_1.default.findByIdAndUpdate(id, {
+                        title,
+                        content
+                    }, { new: true });
+                    //new: true will send the update result to the graphql beacuse updation will take some some time to get updated value will have to do the same
+                }
+                catch (error) {
+                    return new Error(error.message);
+                }
+            }
         }
     }
 });
